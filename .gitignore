@@ -1,0 +1,6 @@
+/results
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+poetry.lock
