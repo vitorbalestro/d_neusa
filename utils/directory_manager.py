@@ -19,7 +19,9 @@ class DirectoryManager:
         
     
     def config(self):
-    
+
+        print("Current working directory:", os.getcwd())
+
         if not self.ablation:
             self.save_dir = os.path.join("results",self.equation,self.dir_name,self.model,f"seed_{self.seed}")
         else:

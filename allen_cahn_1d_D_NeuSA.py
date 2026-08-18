@@ -1,9 +1,8 @@
 import torch
-from torchdyn.core import NeuralODE
 import numpy as np
-import time
 import argparse
 import json
+import time
 import os
 
 from basis.fourier1d import FourierBasis1D
@@ -11,10 +10,8 @@ from basis.fourier1d import FourierBasis1D
 from training_wrappers.training_wrapper_d_neusa import TrainingWrapperDNeuSA
 
 from models.hadamard_layer import HadamardLayer
-from models.mlps import MLP
 from models.vector_fields import HeatLikeVectorField
 
-from utils.trainers import AdamTrainer
 from utils.metrics import Metrics
 from utils.directory_manager import DirectoryManager
 
@@ -109,22 +106,26 @@ if __name__ == "__main__":
     # initial condition
     u0 = xs**2 * torch.cos(torch.pi*xs)
     hu0 = basis.dbt(u0)
+    print(u0.shape)
 
     # initial vector field
     D2 = basis.D2
     omegas = diffusion*torch.diag(D2)
     F0 = HadamardLayer(omegas)
 
-    # neural network parameters
+    # model architecture and parameters
     if n_slices != 1:
         hidden_dim = 2 * n_x
         num_hidden_layers = 1
+        model_weight = 1.0
     elif not enhanced_neusa:
         hidden_dim = 4 * n_x
         num_hidden_layers = 1
+        model_weight = 0.1
     else:
         hidden_dim = 8 * n_x
         num_hidden_layers = 8
+        model_weight = 0.1
         
     neural_network_dict = {
         "in_dim": n_x,
@@ -150,7 +151,7 @@ if __name__ == "__main__":
         basis=basis,
         F0=F0,
         neural_vector_field_builder=HeatLikeVectorField,
-        model_weight=1.0,
+        model_weight=model_weight,
         loss_function=loss_function,
         device=device
     )
@@ -158,7 +159,17 @@ if __name__ == "__main__":
     u_pred = trainer.train()
 
     # reference solution
-    u_ref = allen_cahn_1d_solver(n_x,n_t,domain_x,domain_t)
+    start_time_solver = time.time()
+    u_ref = allen_cahn_1d_solver(
+        n_x=n_x,
+        n_t=n_t,
+        domain_x=domain_x,
+        domain_t=domain_t,
+        diffusion=diffusion,
+        device=device
+    )
+    end_time_solver = time.time()
+    solver_time = end_time_solver - start_time_solver
 
     # metrics
     metrics = Metrics(u_pred,u_ref)
@@ -171,6 +182,7 @@ if __name__ == "__main__":
     np.save(os.path.join(directory_manager.save_dir_solutions, "u_ref.npy"),u_ref)
 
     metrics_dict = {
+            "model": model,
             "n_slices": int(n_slices),
             "diffusion_coefficient": float(diffusion),
             "enhanced_neusa": str(enhanced_neusa),
@@ -178,12 +190,20 @@ if __name__ == "__main__":
             "relative_l1_error": float(relative_l1_error_value),
             "training_time": float(trainer.training_time),
             "num_params": int(trainer.num_params),
-            "inference_time": float(trainer.inference_time)
+            "model_inference_time": float(trainer.inference_time),
+            "solver_inference_time": float(solver_time)
     }
 
     with open(os.path.join(directory_manager.save_dir_metrics, "metrics.json"), "w") as f:
         json.dump(metrics_dict, f, indent=4)    
     
     # plot
-    experiment_plot_1d(xs,ts,u_ref,u_pred,directory_manager.figs_dir)
+    experiment_plot_1d(
+        xs=xs,
+        ts=ts,
+        u_ref=u_ref,
+        u_pred=u_pred,
+        figs_dir=directory_manager.figs_dir,
+        fig_name="allen_cahn_1d_plot.png"
+    )
     

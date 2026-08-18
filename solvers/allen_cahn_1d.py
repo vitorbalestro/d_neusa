@@ -14,9 +14,8 @@ def rk4(u, dt, f):
     u_next = u + (k1 + 2*k2 + 2*k3 + k4) / 6
     return u_next
 
-def allen_cahn_1d_solver(n_x,n_t,domain_x,domain_t,diffusion=0.0001,u0_pert=None):
+def allen_cahn_1d_solver(n_x,n_t,domain_x,domain_t,diffusion=0.0001,u0_pert=None,device='cuda:0'):
     # output tensor has shape [n_t,n_x]
-    device = 'cuda:0'
     ts_factor = 100
     n_t = ts_factor * (n_t-1) + 1
     ts = torch.linspace(*domain_t,n_t,device=device)
@@ -52,11 +51,11 @@ def allen_cahn_1d_solver(n_x,n_t,domain_x,domain_t,diffusion=0.0001,u0_pert=None
 
     U_tensor = torch.stack(U)
 
-    u_gt = U_tensor.detach().cpu().numpy()
+    u_ref = U_tensor.detach().cpu().numpy()
 
-    u_gt = u_gt[::ts_factor,:]
+    u_ref = u_ref[::ts_factor,:]
 
     
-    return u_gt
+    return u_ref
 
 

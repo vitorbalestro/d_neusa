@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-def experiment_plot_1d(xs, ts, u_ref, u_pred, figs_dir):
+def experiment_plot_1d(xs, ts, u_ref, u_pred, figs_dir, fig_name):
     
     n_t = len(ts)
     offset = n_t // 3
@@ -23,5 +23,5 @@ def experiment_plot_1d(xs, ts, u_ref, u_pred, figs_dir):
         ax.grid(False)
 
     plt.tight_layout()
-    fig.savefig(os.path.join(figs_dir, "allen_cahn_1d_plot.png"))
+    fig.savefig(os.path.join(figs_dir, fig_name))
     plt.close(fig)

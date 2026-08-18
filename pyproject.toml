@@ -1,11 +1,18 @@
 [tool.poetry]
-name = "dneusa"
+name = "d_neusa"
 version = "1.0.0"
 description = ""
 authors = ['Vitor Balestro', 'Márcio Marques', 'Leonardo Mendonça',
 'Leonardo Moreira', 'Christian Oliveira', 'Francisco Ganacim', 'Tiago Novello',
 'Pavel Petrov', 'Daniel Yukimura', 'Lucas Nissenbaum']
-packages=[]
+packages=[
+    { include = "basis" },
+    { include = "models" },
+    { include = "solvers" },
+    { include = "utils" },
+    { include = "training_wrappers" },
+    { include = "data" }
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.14"
