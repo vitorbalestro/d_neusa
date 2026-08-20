@@ -1,0 +1,8 @@
+                       rMSE (mean)   TT (mean)
+equation      model                           
+allen_cahn_1d D_NeuSA     0.000700   93.983900
+              NeuSA       0.753100  186.728300
+allen_cahn_2d D_NeuSA     0.001500 4758.391800
+              NeuSA       0.000000    0.000000
+burgers1d     D_NeuSA     0.001600   93.619700
+              NeuSA       0.095900  188.005800

@@ -5,14 +5,15 @@ for diffusion in 0.1 0.01 0.001 0.0001 0.00001 0.000001; do
     done
 done
 
-for diffusion in 0.1 0.001; do
-    for seed in 11 12 13 14 15; do
-        python burgers1d_D_NeuSA.py --ablation_diffusion --dir ablation_diffusion_coefficient --seed $seed --diffusion $diffusion --discretization_size 30001
-    done
+
+for seed in 11 12 13 14 15; do
+    python burgers1d_D_NeuSA.py --ablation_diffusion --dir ablation_diffusion_coefficient --seed $seed --diffusion 0.01 --discretization_size 5001
 done
 
-for diffusion in 0.01; do
-    for seed in 11 12 13 14 15; do
-        python burgers1d_D_NeuSA.py --ablation_diffusion --dir ablation_diffusion_coefficient --seed $seed --diffusion $diffusion --discretization_size 5001
-    done
+for seed in 11 12 13 14 15; do
+    python burgers1d_D_NeuSA.py --ablation_diffusion --dir ablation_diffusion_coefficient --seed $seed --diffusion 0.1 --discretization_size 30001
+done
+
+for seed in 11 12 13 14 15; do
+        python burgers1d_D_NeuSA.py --ablation_diffusion --dir ablation_diffusion_coefficient --seed $seed --diffusion 0.001 --discretization_size 30001 --widen_factor 4
 done

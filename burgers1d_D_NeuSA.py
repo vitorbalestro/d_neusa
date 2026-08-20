@@ -48,6 +48,7 @@ if __name__ == "__main__":
     parser.add_argument('--ablation_diffusion',action='store_true')
     parser.add_argument('--diffusion', type=float, default=0.01/pi)
     parser.add_argument('--discretization_size', type=int, default=1001)
+    parser.add_argument('--widen_factor', type=int, default=2)
     parser.add_argument('--enhanced_neusa',action='store_true', help="Enables a NeuSA model with number of parameters comparable to that of D-NeuSA.")
 
     args = parser.parse_args()
@@ -60,6 +61,7 @@ if __name__ == "__main__":
     n_slices = args.n_slices
     ablation_diffusion = args.ablation_diffusion
     diffusion = args.diffusion
+    widen_factor = args.widen_factor
     discretization_size = args.discretization_size
     enhanced_neusa = args.enhanced_neusa
 
@@ -117,7 +119,7 @@ if __name__ == "__main__":
 
     # model architecture and parameters
     if n_slices != 1:
-        hidden_dim = 2 * n_x
+        hidden_dim = widen_factor * n_x
         num_hidden_layers = 1
         model_weight = 0.1
     elif not enhanced_neusa:
@@ -154,6 +156,7 @@ if __name__ == "__main__":
         F0=F0,
         neural_vector_field_builder=HeatLikeVectorField,
         model_weight=model_weight,
+        space_dimension=1,
         loss_function=loss_function,
         device=device
     )

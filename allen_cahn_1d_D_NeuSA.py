@@ -68,6 +68,7 @@ if __name__ == "__main__":
     ablation=False
     specifier=None
 
+    # directory configuration
     if ablation_subdomains:
         ablation = True
         specifier = f"subdomains_{n_slices}"
@@ -152,6 +153,7 @@ if __name__ == "__main__":
         F0=F0,
         neural_vector_field_builder=HeatLikeVectorField,
         model_weight=model_weight,
+        space_dimension=1,
         loss_function=loss_function,
         device=device
     )

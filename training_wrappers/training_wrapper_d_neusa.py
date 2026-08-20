@@ -3,7 +3,7 @@ import torch
 from torchdyn.core import NeuralODE
 
 from utils.trainers import AdamTrainer
-from models.mlps import MLP
+from models.mlps import MLP, MLPWithTranspose2D
 
 class TrainingWrapperDNeuSA:
     def __init__(
@@ -18,6 +18,7 @@ class TrainingWrapperDNeuSA:
         neural_vector_field_builder,    # HeatLikeVectorField, e.g.
         model_weight,
         loss_function,
+        space_dimension=1,
         loss_kwargs=None,
         device='cpu'
     ):
@@ -41,6 +42,8 @@ class TrainingWrapperDNeuSA:
         self.neural_vector_field_builder = neural_vector_field_builder
         self.model_weight = model_weight
 
+        self.space_dimension = space_dimension
+
         self.loss_function = loss_function
         self.loss_kwargs = {} if loss_kwargs is None else loss_kwargs.copy()
 
@@ -49,12 +52,21 @@ class TrainingWrapperDNeuSA:
 
     def initialize_subnetwork(self):
 
-        F_neural = MLP(
-            self.neural_network_dict['in_dim'],
-            self.neural_network_dict['hidden_dim'],
-            self.neural_network_dict['out_dim'],
-            self.neural_network_dict['num_hidden_layers']
-        )
+        if self.space_dimension == 1:
+            F_neural = MLP(
+                self.neural_network_dict['in_dim'],
+                self.neural_network_dict['hidden_dim'],
+                self.neural_network_dict['out_dim'],
+                self.neural_network_dict['num_hidden_layers']
+            )
+            
+        elif self.space_dimension == 2:
+            F_neural = MLPWithTranspose2D(
+                M = self.neural_network_dict['M'],
+                N = self.neural_network_dict['N'],
+                widen_factor = self.neural_network_dict['widen_factor'],
+                num_hidden_layers = self.neural_network_dict['num_hidden_layers']
+            )
 
         F = self.neural_vector_field_builder(
             F_neural,
