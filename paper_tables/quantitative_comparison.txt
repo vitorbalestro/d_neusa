@@ -1,8 +1,14 @@
-                       rMSE (mean)   TT (mean)
-equation      model                           
-allen_cahn_1d D_NeuSA     0.000700   93.983900
-              NeuSA       0.753100  186.728300
-allen_cahn_2d D_NeuSA     0.001500 4758.391800
-              NeuSA       0.000000    0.000000
-burgers1d     D_NeuSA     0.001600   93.619700
-              NeuSA       0.095900  188.005800
+                             rMSE (mean)   TT (mean)
+equation            model                           
+allen_cahn_1d       D_NeuSA     0.000700   93.983900
+                    NeuSA       0.753100  186.728300
+allen_cahn_2d       D_NeuSA     0.001500 4758.391800
+                    NeuSA       0.000000    0.000000
+burgers1d           D_NeuSA     0.001600   93.619700
+                    NeuSA       0.095900  188.005800
+wave2d_marmousi     D_NeuSA     0.036000  620.267900
+                    NeuSA       0.192400  530.357900
+wave2d_three_layers D_NeuSA     0.015500   61.542500
+                    NeuSA       0.126800  270.509100
+wave3d_utah_forge   D_NeuSA     0.028000 1976.408500
+                    NeuSA       0.169400 2963.067800

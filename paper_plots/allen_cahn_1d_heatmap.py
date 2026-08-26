@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-u_ref_path = "/impa/home/l/vitor.balestro/PINN-study/d_neusa/results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_ref.npy"
-u_dneusa_path = "/impa/home/l/vitor.balestro/PINN-study/d_neusa/results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_pred.npy"
-u_neusa_path = "/impa/home/l/vitor.balestro/PINN-study/d_neusa/results/allen_cahn_1d/baseline/NeuSA/seed_11/solutions/u_pred.npy"
+u_ref_path = "results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_ref.npy"
+u_dneusa_path = "results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_pred.npy"
+u_neusa_path = "results/allen_cahn_1d/baseline/NeuSA/seed_11/solutions/u_pred.npy"
 
 u_ref = np.load(u_ref_path)
 u_dneusa = np.load(u_dneusa_path)

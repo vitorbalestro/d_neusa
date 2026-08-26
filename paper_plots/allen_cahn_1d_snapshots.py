@@ -54,8 +54,8 @@ domain_t = [0.0,1.0]
 n_t = 1001
 ts = torch.linspace(*domain_t,n_t)
 
-u_ref_path = "/impa/home/l/vitor.balestro/PINN-study/d_neusa/results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_pred.npy"
-u_dneusa_path = "/impa/home/l/vitor.balestro/PINN-study/d_neusa/results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_ref.npy"
+u_ref_path = "results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_pred.npy"
+u_dneusa_path = "results/allen_cahn_1d/baseline/D_NeuSA/seed_11/solutions/u_ref.npy"
 
 u_ref = np.load(u_ref_path)
 u_dneusa = np.load(u_dneusa_path)

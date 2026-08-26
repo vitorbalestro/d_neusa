@@ -8,7 +8,6 @@ import json
 
 from basis.cosine2d import CosineBasis2D
 
-
 from training_wrappers.training_wrapper_d_neusa import TrainingWrapperDNeuSA
 
 from models.hadamard_layer import HadamardLayer
@@ -16,10 +15,10 @@ from models.vector_fields import HeatLikeVectorField
 
 from utils.metrics import Metrics
 from utils.directory_manager import DirectoryManager
+from utils.plots import experiment_plot_2d
 
 from solvers.allen_cahn_2d import allen_cahn_2d_solver
 
-from utils.plots import experiment_plot_2d
 
 def loss_function(hu0,ts,NODE,basis,F,F0,beta):
 

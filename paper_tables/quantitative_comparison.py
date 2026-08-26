@@ -4,7 +4,7 @@ import pandas as pd
 
 models = ["NeuSA","D_NeuSA"]
 metrics = ['relative_l2_error', 'training_time']
-equations = ["allen_cahn_1d","burgers1d","allen_cahn_2d"]
+equations = ["allen_cahn_1d","burgers1d","allen_cahn_2d","wave2d_three_layers","wave2d_marmousi","wave3d_utah_forge"]
 
 seeds = [11, 12, 14, 15, 17]
 dir_name = "baseline"

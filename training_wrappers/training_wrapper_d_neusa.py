@@ -3,7 +3,7 @@ import torch
 from torchdyn.core import NeuralODE
 
 from utils.trainers import AdamTrainer
-from models.mlps import MLP, MLPWithTranspose2D
+from models.mlps import MLP, MLPWithTranspose2D, MLPWithTranspose3D
 
 class TrainingWrapperDNeuSA:
     def __init__(
@@ -20,6 +20,8 @@ class TrainingWrapperDNeuSA:
         loss_function,
         space_dimension=1,
         loss_kwargs=None,
+        vector_field_kwargs=None,
+        decompose_output=False,
         device='cpu'
     ):
 
@@ -46,7 +48,9 @@ class TrainingWrapperDNeuSA:
 
         self.loss_function = loss_function
         self.loss_kwargs = {} if loss_kwargs is None else loss_kwargs.copy()
+        self.vector_field_kwargs = {} if vector_field_kwargs is None else vector_field_kwargs
 
+        self.decompose_output=decompose_output
 
         self.inference_time = 0.0
 
@@ -68,11 +72,22 @@ class TrainingWrapperDNeuSA:
                 num_hidden_layers = self.neural_network_dict['num_hidden_layers']
             )
 
+        elif self.space_dimension == 3:
+            F_neural = MLPWithTranspose3D(
+                M = self.neural_network_dict['M'],
+                N = self.neural_network_dict['N'],
+                P = self.neural_network_dict['P'],
+                widen_factor = self.neural_network_dict['widen_factor'],
+                num_hidden_layers = self.neural_network_dict['num_hidden_layers']
+            )
+
         F = self.neural_vector_field_builder(
             F_neural,
             self.F0,
-            model_weight=self.model_weight
+            model_weight=self.model_weight,
+            **self.vector_field_kwargs
         )
+
 
         NODE = NeuralODE(
             F,
@@ -183,6 +198,10 @@ class TrainingWrapperDNeuSA:
         self.training_time = self.end_time - self.start_time
 
         hu = torch.cat(hus,dim=0).to(self.device)
-        u_pred = self.basis.idbt(hu).squeeze().detach().cpu().numpy()
+        if not self.decompose_output:
+            u_pred = self.basis.idbt(hu).squeeze().detach().cpu().numpy()
+        else:
+            hu,_ = hu.chunk(2,dim=-1)
+            u_pred = self.basis.idbt(hu).squeeze().detach().cpu().numpy()
 
         return u_pred
