@@ -150,7 +150,7 @@ if __name__ == "__main__":
     model_weight = 10.0
     if not enhanced_neusa:
         num_hidden_layers = 0
-        widen_factor = 3 if n_slices > 1 else 2
+        widen_factor = 1
     else:
         num_hidden_layers = 2
         widen_factor = 4

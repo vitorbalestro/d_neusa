@@ -173,16 +173,17 @@ if __name__ == "__main__":
     end_time_solver = time.time()
     solver_time = end_time_solver - start_time_solver
 
+    # save solutions
+    np.save(os.path.join(directory_manager.save_dir_solutions, "u_pred.npy"),u_pred)
+    np.save(os.path.join(directory_manager.save_dir_solutions, "u_ref.npy"),u_ref)
+
+
     # metrics
     metrics = Metrics(u_pred,u_ref)
     relative_l2_error_value = metrics.relative_l2_error()
     relative_l1_error_value = metrics.relative_l1_error()
 
-    # save solutions
-
-    np.save(os.path.join(directory_manager.save_dir_solutions, "u_pred.npy"),u_pred)
-    np.save(os.path.join(directory_manager.save_dir_solutions, "u_ref.npy"),u_ref)
-
+    
     metrics_dict = {
             "model": model,
             "n_slices": int(n_slices),
