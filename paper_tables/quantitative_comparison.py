@@ -2,7 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 
-models = ["NeuSA","D_NeuSA"]
+models = ["NeuSA","D_NeuSA","PINN","Causal_PINN","QRes","Causal_QRes","FLS","Causal_FLS"]
 metrics = ['relative_l2_error', 'training_time']
 equations = ["allen_cahn_1d","burgers1d","allen_cahn_2d","wave2d_three_layers","wave2d_marmousi","wave3d_utah_forge"]
 

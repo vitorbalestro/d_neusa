@@ -5,3 +5,6 @@
 __pycache__/
 poetry.lock
 /machine_scripts
+transport1d_mlp_models.py
+/utils/transport_plot.py
+transport1d_D_NeuSA.py

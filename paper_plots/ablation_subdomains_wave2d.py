@@ -13,7 +13,7 @@ plt.rcParams.update({
 p = [10, 20, 40, 50, 100]
 x_plot = np.arange(len(p))
 
-seeds = [10,11,13,14,15]
+seeds = [11,12,13,14,15]
 
 # --------------------------------------------------------
 # Fill with your values

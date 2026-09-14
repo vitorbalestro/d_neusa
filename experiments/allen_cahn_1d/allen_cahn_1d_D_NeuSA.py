@@ -191,6 +191,7 @@ if __name__ == "__main__":
             "enhanced_neusa": str(enhanced_neusa),
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
+            "steps": int(steps),
             "training_time": float(trainer.training_time),
             "num_params": int(trainer.num_params),
             "model_inference_time": float(trainer.inference_time),

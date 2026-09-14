@@ -5,8 +5,7 @@ import json
 import argparse
 import os
 
-from basis.cosine2d import CosineBasis2D
-
+from basis.cosine3d import CosineBasis3D
 from training_wrappers.training_wrapper_d_neusa import TrainingWrapperDNeuSA
 
 from models.hadamard_layer import HadamardLayer
@@ -16,34 +15,34 @@ from utils.metrics import Metrics
 from utils.directory_manager import DirectoryManager
 from utils.plots import experiment_plot_2d
 
+
 from solvers.wave import wave_solver
 
 def loss_function(hu0,ts,NODE,basis,F,F0,c):
-
     huv = NODE(hu0,ts)
     Fhuv = F(huv)
+    hu,_ = huv.chunk(2,dim=-1)
+    _,Fhv = Fhuv.chunk(2,dim=-1)
 
-    hu, _ = huv.chunk(2, dim=-1)
-    _, Fhv = Fhuv.chunk(2, dim=-1)
-
-    right_hand_side = c**2 * basis.idbt(F0(hu))
+    right_side = c**2 * basis.idbt(F0(hu))
     v_t = basis.idbt(Fhv)
 
-    loss = torch.mean((v_t-right_hand_side)**2)
+    loss = torch.mean((v_t-right_side)**2)
 
     return loss
 
+
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser('Wave 2D Three Layers D-NeuSA')
+    parser = argparse.ArgumentParser('Wave 3D Utah FORGE D-NeuSA')
     parser.add_argument('--dir', type=str,default='free_experiment')    # name of the directory where the results folder will be saved
     parser.add_argument('--seed', type=int,default= 42)    # random seed
     parser.add_argument('--device', type=str, default='cuda:0')   
-    parser.add_argument('--steps', type=int, default=200)  
+    parser.add_argument('--steps', type=int, default=3000)  
     parser.add_argument('--lr', type=float, default=0.01)
-    parser.add_argument('--ablation_subdomains',action='store_true')
-    parser.add_argument('--n_slices', type=int, default=40)
-    parser.add_argument('--enhanced_neusa', action='store_true')
+    parser.add_argument('--ablation_subdomains', action='store_true')
+    parser.add_argument('--n_slices', type=int, default=60)
+    parser.add_argument('--enhanced_neusa', action="store_true")
 
     args = parser.parse_args()
     dir_name = args.dir
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     model = "D_NeuSA" if n_slices > 1 else "NeuSA"
     
     directory_manager = DirectoryManager(
-        equation="wave2d_three_layers",
+        equation="wave3d_utah_forge",
         model=model,
         dir_name=dir_name,
         ablation=ablation,
@@ -85,62 +84,81 @@ if __name__ == "__main__":
 
     directory_manager.config()
 
-    # reference domain
+    # domain, spectral basis and discretizations
     domain_x = [-2.0,2.0]
-    n_x = 101
+    n_x = 41
     domain_y = [-2.0,2.0]
-    n_y = 101
-    domain_t = [0.0,2.0]
-    n_t = 201
-    ts = torch.linspace(*domain_t,n_t)
+    n_y = 41
+    domain_z = [-2.0,2.0]
+    n_z = 41
+    domain_t = [0.0,3.0]
+    n_t = 301
 
-    # extended domain for training
-    domain_x_ext = [-4.0,4.0]
-    n_x_ext = 201
-    domain_y_ext = [-4.0,4.0]
-    n_y_ext = 201
-
-    basis = CosineBasis2D(
-        M=n_x_ext,
-        N=n_y_ext,
-        domain_x=domain_x_ext,
-        domain_y=domain_y_ext,
+    basis = CosineBasis3D(
+        Mx=n_x,
+        My=n_y,
+        Mz=n_z,
+        domain_x=domain_x,
+        domain_y=domain_y,
+        domain_z=domain_z,
         device=device
     )
-    X,Y = torch.meshgrid(basis.x,basis.y,indexing='ij')
-    grid = torch.stack((X,Y),dim=-1)
-    xs = grid[:,:,0]
-    ys = grid[:,:,1]
+
+    X,Y,Z = torch.meshgrid(basis.x,basis.y,basis.z,indexing='ij')
+    grid = torch.stack((X,Y,Z),dim=-1)
+    xs = grid[:,:,:,0]
+    ys = grid[:,:,:,1]
+    zs = grid[:,:,:,2]
+
+    ts = torch.linspace(*domain_t,n_t)
 
     # initial condition
-    sigma = 0.1
-    u0 = torch.exp(-((xs)**2+(ys)**2)/(2*sigma**2))
-    hu0 = basis.dbt(u0)     
+    sigma = 0.15
+    center = (-1,0,0)
+    u0 = 10*torch.exp((-(xs-center[0])**2-(ys-center[1])**2-(zs-center[2])**2)/(2*sigma**2))
+    hu0 = basis.dbt(u0)
     hv0 = torch.zeros_like(hu0)
     huv0 = torch.cat([hu0,hv0],dim=-1)
 
-    # velocity field
-    c = (1.0 + 0.25 * (torch.sigmoid(1000 * (ys - 0.5)) + torch.sigmoid(1000 * (ys - 1.0)))).to(device)
+    # Utah FORGE velocity field
+    normalizing_factor = 10
+    data_path = "data/Seismic_Velocity_Model_FORGE_Site"
+
+    c_as_array = []
+
+    with open(data_path,'r') as f:
+        next(f)
+        for line in f:
+            cols = line.split()
+            c_as_array.append(float(cols[5])/normalizing_factor)     
+
+
+    c_numpy = np.array(c_as_array).reshape(65,41,41)
+    c_numpy = c_numpy[0:41,:,:]
+    initial_velocity = c_numpy[20,20,20]
+    
+    c = torch.tensor(c_numpy,dtype=torch.float32,device=device)
 
     # spectral laplacian operator
     D2 = basis.D2
     F0 = HadamardLayer(D2)
 
     # model architecture and parameters
-    M = n_x_ext
-    N = n_y_ext
+    M = n_x
+    N = n_y
+    P = n_z
+    model_weight = 10.0
     if not enhanced_neusa:
         num_hidden_layers = 0
-        widen_factor = 2
-        model_weight=1.0
+        widen_factor = 1
     else:
-        num_hidden_layers=4
-        widen_factor=4
-        model_weight=1.0
+        num_hidden_layers = 2
+        widen_factor = 4
 
     neural_network_dict={
         "M": M,
         "N": N,
+        "P": P,
         "widen_factor": widen_factor,
         "num_hidden_layers": num_hidden_layers
     }
@@ -151,10 +169,15 @@ if __name__ == "__main__":
         "steps": steps,
         "learning_rate_scheduler": True
     }
-
+    
     # loss function kwargs
     loss_kwargs = {
         'c': c
+    }
+
+    # vector field kwargs dict
+    vector_field_kwargs = {
+        "initial_velocity": initial_velocity
     }
 
     # training and inference
@@ -168,19 +191,16 @@ if __name__ == "__main__":
         F0=F0,
         neural_vector_field_builder=WaveLikeVectorField,
         model_weight=model_weight,
-        space_dimension=2,
+        space_dimension=3,
         loss_function=loss_function,
         loss_kwargs=loss_kwargs,
+        vector_field_kwargs=vector_field_kwargs,
         decompose_output=True,
         device=device
     )
 
     u_pred = trainer.train()
 
-    # crop the predicted solution for the domain of interest
-    u_pred = u_pred[:,50:151,50:151]
-
-    # reference solution
     start_time_solver = time.time()
     u_ref = wave_solver(
         c=c,
@@ -191,9 +211,6 @@ if __name__ == "__main__":
     )
     end_time_solver = time.time()
     solver_time = end_time_solver - start_time_solver
-
-    # crop the reference solution for the domain of interest
-    u_ref = u_ref[:,50:151,50:151]
 
     # metrics
     metrics = Metrics(u_pred,u_ref)
@@ -210,6 +227,7 @@ if __name__ == "__main__":
             "n_slices": int(n_slices),
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
+            "steps": int(steps),
             "training_time": float(trainer.training_time),
             "num_params": int(trainer.num_params),
             "model_inference_time": float(trainer.inference_time),
@@ -220,13 +238,15 @@ if __name__ == "__main__":
         json.dump(metrics_dict, f, indent=4)    
 
 
-    # plot
+    # we plot a slice at z = 0.5
     experiment_plot_2d(
         ts=ts,
-        u_pred=u_pred,
-        u_ref=u_ref,
+        u_pred=u_pred[:,:,:,24],
+        u_ref=u_ref[:,:,:,24],
         figs_dir=directory_manager.figs_dir,
-        fig_name="wave2d_three_layers_plot.png",
+        fig_name="wave3d_utah_forge_plot.png",
         extent=[*domain_x,*domain_y],
         cmap="seismic",
+        transpose=False,
+        interpolation='bicubic'
     )

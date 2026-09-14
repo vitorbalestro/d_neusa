@@ -22,32 +22,27 @@ def loss_function(hu0,ts,NODE,basis,F,F0,c):
 
     huv = NODE(hu0,ts)
     Fhuv = F(huv)
-    hu,_ = huv.chunk(2,dim=-1)
-    _,Fhv = Fhuv.chunk(2,dim=-1)
 
-    # u_tt = v_t = c^2D^2u
-    right_side = c**2 * basis.idbt(F0(hu))
+    hu, _ = huv.chunk(2, dim=-1)
+    _, Fhv = Fhuv.chunk(2, dim=-1)
+
+    right_hand_side = c**2 * basis.idbt(F0(hu))
     v_t = basis.idbt(Fhv)
 
-    # we train solely on a neighborhood of the internal domain
-    dd = 30
-    v_t = v_t[:,100-dd:301+dd,100-dd:301+dd]
-    right_side = right_side[:,100-dd:301+dd,100-dd:301+dd]
+    loss = torch.mean((v_t-right_hand_side)**2)
 
-    loss = torch.mean((v_t-right_side)**2)
-    
     return loss
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser('Wave 2D Marmousi D-NeuSA')
+    parser = argparse.ArgumentParser('Wave 2D Three Layers D-NeuSA')
     parser.add_argument('--dir', type=str,default='free_experiment')    # name of the directory where the results folder will be saved
     parser.add_argument('--seed', type=int,default= 42)    # random seed
     parser.add_argument('--device', type=str, default='cuda:0')   
-    parser.add_argument('--steps', type=int, default=2000)  
+    parser.add_argument('--steps', type=int, default=200)  
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--ablation_subdomains',action='store_true')
-    parser.add_argument('--n_slices', type=int, default=50)
+    parser.add_argument('--n_slices', type=int, default=40)
     parser.add_argument('--enhanced_neusa', action='store_true')
 
     args = parser.parse_args()
@@ -80,7 +75,7 @@ if __name__ == "__main__":
     model = "D_NeuSA" if n_slices > 1 else "NeuSA"
     
     directory_manager = DirectoryManager(
-        equation="wave2d_marmousi",
+        equation="wave2d_three_layers",
         model=model,
         dir_name=dir_name,
         ablation=ablation,
@@ -92,18 +87,18 @@ if __name__ == "__main__":
 
     # reference domain
     domain_x = [-2.0,2.0]
-    n_x = 201
+    n_x = 101
     domain_y = [-2.0,2.0]
-    n_y = 201
+    n_y = 101
     domain_t = [0.0,2.0]
     n_t = 201
     ts = torch.linspace(*domain_t,n_t)
 
     # extended domain for training
     domain_x_ext = [-4.0,4.0]
-    n_x_ext = 401
+    n_x_ext = 201
     domain_y_ext = [-4.0,4.0]
-    n_y_ext = 401
+    n_y_ext = 201
 
     basis = CosineBasis2D(
         M=n_x_ext,
@@ -119,15 +114,13 @@ if __name__ == "__main__":
 
     # initial condition
     sigma = 0.1
-    u0 = torch.exp(-((xs**2)+(ys+0.5)**2)/(2*sigma**2))
-    v0 = torch.zeros_like(u0)
-    hu0 = basis.dbt(u0)    
+    u0 = torch.exp(-((xs)**2+(ys)**2)/(2*sigma**2))
+    hu0 = basis.dbt(u0)     
     hv0 = torch.zeros_like(hu0)
     huv0 = torch.cat([hu0,hv0],dim=-1)
 
-    # Marmousi velocity field
-    velocity_profile = np.loadtxt("data/wave2d_marmousi/velocity_profile.txt",dtype=np.float32)
-    c = torch.tensor(velocity_profile,device=device)
+    # velocity field
+    c = (1.0 + 0.25 * (torch.sigmoid(1000 * (ys - 0.5)) + torch.sigmoid(1000 * (ys - 1.0)))).to(device)
 
     # spectral laplacian operator
     D2 = basis.D2
@@ -139,11 +132,11 @@ if __name__ == "__main__":
     if not enhanced_neusa:
         num_hidden_layers = 0
         widen_factor = 2
-        model_weight=2.0
+        model_weight=1.0
     else:
-        num_hidden_layers=2
-        widen_factor=2
-        model_weight=2.0
+        num_hidden_layers=4
+        widen_factor=4
+        model_weight=1.0
 
     neural_network_dict={
         "M": M,
@@ -185,27 +178,22 @@ if __name__ == "__main__":
     u_pred = trainer.train()
 
     # crop the predicted solution for the domain of interest
-    u_pred = u_pred[:,100:301,100:301]
+    u_pred = u_pred[:,50:151,50:151]
 
     # reference solution
-    solver_ts = torch.linspace(*domain_t,401)   # we need more time steps for RK4
     start_time_solver = time.time()
     u_ref = wave_solver(
         c=c,
         u0=u0,
         basis=basis,
-        ts=solver_ts,
+        ts=ts,
         device=device
     )
     end_time_solver = time.time()
     solver_time = end_time_solver - start_time_solver
 
-    # go back to the original time discretization
-    ts_idx = range(0,401,2)
-    u_ref = u_ref[ts_idx,:,:]
-
     # crop the reference solution for the domain of interest
-    u_ref = u_ref[:,100:301,100:301]
+    u_ref = u_ref[:,50:151,50:151]
 
     # metrics
     metrics = Metrics(u_pred,u_ref)
@@ -223,6 +211,7 @@ if __name__ == "__main__":
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
             "training_time": float(trainer.training_time),
+            "steps": int(steps),
             "num_params": int(trainer.num_params),
             "model_inference_time": float(trainer.inference_time),
             "solver_inference_time": float(solver_time)
@@ -238,7 +227,7 @@ if __name__ == "__main__":
         u_pred=u_pred,
         u_ref=u_ref,
         figs_dir=directory_manager.figs_dir,
-        fig_name="wave2d_marmousi_plot.png",
+        fig_name="wave2d_three_layers_plot.png",
         extent=[*domain_x,*domain_y],
         cmap="seismic",
     )
