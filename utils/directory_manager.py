@@ -8,7 +8,8 @@ class DirectoryManager:
         dir_name,
         seed,
         ablation=False,
-        specifier=None
+        specifier=None,
+        checkpoints=False
     ):
         self.equation = equation
         self.ablation = ablation
@@ -16,6 +17,7 @@ class DirectoryManager:
         self.seed = seed
         self.model = model
         self.dir_name = dir_name
+        self.checkpoints = checkpoints
         
     
     def config(self):
@@ -38,6 +40,12 @@ class DirectoryManager:
         self.figs_dir = os.path.join(
             self.save_dir, "figures"
         )
+
+        if self.checkpoints:
+            self.checkpoints_dir = os.path.join(
+                self.save_dir, "checkpoints"
+            )
+            os.makedirs(self.checkpoints_dir, exist_ok=True)
 
         os.makedirs(self.save_dir_solutions, exist_ok=True)
         os.makedirs(self.save_dir_metrics, exist_ok=True)

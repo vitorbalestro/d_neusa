@@ -12,12 +12,13 @@ def create_graphs_grid(xs, u_neusa, u_dneusa, u_pinn, u_fls, u_qres,
     axs[0].set_ylabel("Error")
     for i, ax in enumerate(axs):
         ax.plot(xs, u_neusa[i], label="NeuSA", color='green')
-        ax.plot(xs, u_dneusa[i], label="D-NeuSA", color='red',linewidth=2.5,linestyle='--')
+        ax.plot(xs, u_dneusa[i], label=r"$\mathbf{D\mathrm{-}NeuSA}$", color='red',linewidth=2.5,linestyle='--')
         #ax.plot(xs, u_pinn[i], label="PINN", color="#E69F00")
         #ax.plot(xs, u_fls[i], label="FLS", color="#7B3294")
         ax.plot(xs, u_qres[i], label="QRes", color="#8C564B")
 
         ax.set_title(titles[i])
+        ax.set_xlabel(r"$x$") 
         ax.grid(False)
 
     # legenda única

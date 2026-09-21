@@ -132,7 +132,7 @@ if __name__ == "__main__":
     parser.add_argument('--dir', type=str,default='free_experiment')    # name of the directory where the results folder will be saved
     parser.add_argument('--seed', type=int,default= 42)    # random seed
     parser.add_argument('--device', type=str, default='cuda:0')     
-    parser.add_argument('--steps', type=int, default=5000)  
+    parser.add_argument('--steps', type=int, default=10000)  
     parser.add_argument('--lr', type=float, default=0.001)
     
     args = parser.parse_args()

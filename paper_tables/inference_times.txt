@@ -1,0 +1,6 @@
+Equation: allen_cahn_1d | D_NeuSA: 0.412500 | NeuSA: 0.386852 | Solver: 17.171599
+Equation: allen_cahn_2d | D_NeuSA: 10.601413 | NeuSA: 0.000000 | Solver: 7.808057
+Equation: burgers1d | D_NeuSA: 0.414343 | NeuSA: 0.397868 | Solver: 23.575373
+Equation: wave2d_marmousi | D_NeuSA: 0.131122 | NeuSA: 0.111941 | Solver: 0.249690
+Equation: wave2d_three_layers | D_NeuSA: 0.130854 | NeuSA: 0.119406 | Solver: 0.087746
+Equation: wave3d_utah_forge | D_NeuSA: 0.250369 | NeuSA: 0.231841 | Solver: 0.193309

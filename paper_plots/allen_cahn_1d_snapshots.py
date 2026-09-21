@@ -18,7 +18,7 @@ def plot_allen_cahn_snapshots(xs,ts,u_ref,u_dneusa):
 
     for i, ax in enumerate(axs):
         ax.plot(xs,u_ref[idxs[i]],label="Reference",color='blue')
-        ax.plot(xs,u_dneusa[idxs[i]],label="D-NeuSA",color='red',linestyle='--')
+        ax.plot(xs,u_dneusa[idxs[i]],label=r"$\mathbf{D\mathrm{-}NeuSA}$",color='red',linestyle='--')
         ax.set_title(titles[i])
         ax.grid(False)
         ax.set_xlabel(r"$x$")

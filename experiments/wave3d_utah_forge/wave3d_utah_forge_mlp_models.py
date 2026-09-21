@@ -308,6 +308,7 @@ if __name__ == "__main__":
 
     c_numpy = np.array(c_as_array).reshape(65,41,41)
     c_numpy = c_numpy[0:41,:,:]
+    c_numpy = np.transpose(c_numpy, (2, 1, 0)).copy()
     c = torch.tensor(c_numpy,dtype=torch.float32) # we need this to compute the ground-truth solution below
     c_squared = c_numpy*c_numpy
     xs = np.linspace(*domain_x,n_x)

@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     # Utah FORGE velocity field
     normalizing_factor = 10
-    data_path = "data/Seismic_Velocity_Model_FORGE_Site"
+    data_path = "data/utah_forge/Seismic_Velocity_Model_FORGE_Site"
 
     c_as_array = []
 
@@ -135,6 +135,8 @@ if __name__ == "__main__":
 
     c_numpy = np.array(c_as_array).reshape(65,41,41)
     c_numpy = c_numpy[0:41,:,:]
+    c_numpy = np.transpose(c_numpy, (2, 1, 0)).copy()
+
     initial_velocity = c_numpy[20,20,20]
     
     c = torch.tensor(c_numpy,dtype=torch.float32,device=device)

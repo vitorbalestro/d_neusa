@@ -12,7 +12,6 @@ class HeatLikeVectorField(nn.Module):
         return self.model_weight * self.F_neural(x) + self.F0(x)
 
 
-
 class WaveLikeVectorField(nn.Module):
     def __init__(self, F_neural, F0, model_weight,initial_velocity=1.0):
         super().__init__()
