@@ -44,6 +44,7 @@ if __name__ == "__main__":
     parser.add_argument('--ablation_subdomains',action='store_true')
     parser.add_argument('--n_slices', type=int, default=40)
     parser.add_argument('--enhanced_neusa', action='store_true')
+    parser.add_argument('--warm_start', action="store_true",help="Enables warm start, where each vector field is initialized with the parameters of the previous one.")
 
     args = parser.parse_args()
     dir_name = args.dir
@@ -54,6 +55,7 @@ if __name__ == "__main__":
     n_slices = args.n_slices
     ablation_subdomains = args.ablation_subdomains
     enhanced_neusa = args.enhanced_neusa
+    warm_start = args.warm_start
 
     torch.set_float32_matmul_precision("high")
     torch.manual_seed(seed)
@@ -172,7 +174,8 @@ if __name__ == "__main__":
         loss_function=loss_function,
         loss_kwargs=loss_kwargs,
         decompose_output=True,
-        device=device
+        device=device,
+        warm_start=warm_start
     )
 
     u_pred = trainer.train()
@@ -208,6 +211,7 @@ if __name__ == "__main__":
     metrics_dict = {
             "model": model,
             "n_slices": int(n_slices),
+            "warm_start": str(warm_start),
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
             "training_time": float(trainer.training_time),

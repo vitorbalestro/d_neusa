@@ -40,6 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=0.02)
     parser.add_argument('--n_slices', type=int, default=20)
     parser.add_argument('--discretization_size', type=int, default=201)
+    parser.add_argument('--warm_start', action="store_true",help="Enables warm start, where each vector field is initialized with the parameters of the previous one.")
 
     args = parser.parse_args()
     dir_name = args.dir
@@ -49,6 +50,7 @@ if __name__ == "__main__":
     lr = args.lr
     n_slices = args.n_slices
     discretization_size = args.discretization_size
+    warm_start = args.warm_start
 
     torch.set_float32_matmul_precision("high")
     torch.manual_seed(seed)
@@ -130,7 +132,8 @@ if __name__ == "__main__":
         model_weight=model_weight,
         space_dimension=1,
         loss_function=loss_function,
-        device=device
+        device=device,
+        warm_start=warm_start
     )
 
     u_pred = trainer.train()
@@ -158,6 +161,7 @@ if __name__ == "__main__":
     metrics_dict = {
             "model": model,
             "n_slices": int(n_slices),
+            "warm_start": str(warm_start),
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
             "steps": int(steps),

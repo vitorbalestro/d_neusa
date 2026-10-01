@@ -22,7 +22,8 @@ class TrainingWrapperDNeuSA:
         loss_kwargs=None,
         vector_field_kwargs=None,
         decompose_output=False,
-        device='cpu'
+        device='cpu',
+        warm_start=False
     ):
 
         self.device = torch.device(device)
@@ -53,6 +54,8 @@ class TrainingWrapperDNeuSA:
         self.decompose_output=decompose_output
 
         self.inference_time = 0.0
+
+        self.warm_start = warm_start
 
     def initialize_subnetwork(self):
 
@@ -146,15 +149,18 @@ class TrainingWrapperDNeuSA:
         # here we compute and store the number of parameters
         self.count_parameters(NODE)
 
-        del NODE
-        del F
-        del F_neural
+        if not self.warm_start:
+            del NODE
+            del F
+            del F_neural
+
         del trainer
         del hu
 
         for i in range(1,self.n_slices):
             
-            F_neural,F, NODE = self.initialize_subnetwork()
+            if not self.warm_start:
+                F_neural,F, NODE = self.initialize_subnetwork()
 
             hu_init = hus[i-1][-1].detach().to(self.device)
             hus[i-1] = hus[i-1][:-1]
@@ -186,9 +192,11 @@ class TrainingWrapperDNeuSA:
 
             hus.append(hu.cpu())
 
-            del NODE
-            del F
-            del F_neural
+            if not self.warm_start:
+                del NODE
+                del F
+                del F_neural
+
             del trainer
             del hu
 

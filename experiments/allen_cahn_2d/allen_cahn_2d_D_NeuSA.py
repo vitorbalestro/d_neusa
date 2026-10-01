@@ -47,6 +47,8 @@ if __name__ == "__main__":
     parser.add_argument('--ablation_diffusion',action='store_true')
     parser.add_argument('--diffusion', type=float, default=0.00625)
     parser.add_argument('--discretization_size', type=int, default=20001)
+    parser.add_argument('--warm_start', action="store_true",help="Enables warm start, where each vector field is initialized with the parameters of the previous one.")
+
 
     args = parser.parse_args()
     dir_name = args.dir
@@ -59,6 +61,7 @@ if __name__ == "__main__":
     ablation_diffusion = args.ablation_diffusion
     diffusion = args.diffusion
     discretization_size = args.discretization_size
+    warm_start = args.warm_start
 
     torch.set_float32_matmul_precision("high")
     torch.manual_seed(seed)
@@ -158,7 +161,8 @@ if __name__ == "__main__":
         space_dimension=2,
         loss_function=loss_function,
         loss_kwargs=loss_kwargs,
-        device=device
+        device=device,
+        warm_start=warm_start
     )
 
     u_pred = trainer.train()
@@ -191,6 +195,7 @@ if __name__ == "__main__":
             "model": model,
             "n_slices": int(n_slices),
             "diffusion_coefficient": float(diffusion),
+            "warm_start": str(warm_start),
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
             "steps": int(steps),

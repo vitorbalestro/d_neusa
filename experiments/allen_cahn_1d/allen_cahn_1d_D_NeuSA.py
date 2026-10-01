@@ -46,6 +46,7 @@ if __name__ == "__main__":
     parser.add_argument('--ablation_diffusion',action='store_true')
     parser.add_argument('--diffusion', type=float, default=0.0001)
     parser.add_argument('--enhanced_neusa',action='store_true', help="Enables a NeuSA model with number of parameters comparable to that of D-NeuSA.")
+    parser.add_argument('--warm_start', action="store_true",help="Enables warm start, where each vector field is initialized with the parameters of the previous one.")
 
     args = parser.parse_args()
     dir_name = args.dir
@@ -58,6 +59,7 @@ if __name__ == "__main__":
     ablation_diffusion = args.ablation_diffusion
     diffusion = args.diffusion
     enhanced_neusa = args.enhanced_neusa
+    warm_start = args.warm_start
 
     torch.set_float32_matmul_precision("high")
     torch.manual_seed(seed)
@@ -155,7 +157,8 @@ if __name__ == "__main__":
         model_weight=model_weight,
         space_dimension=1,
         loss_function=loss_function,
-        device=device
+        device=device,
+        warm_start=warm_start
     )
 
     u_pred = trainer.train()
@@ -189,6 +192,7 @@ if __name__ == "__main__":
             "n_slices": int(n_slices),
             "diffusion_coefficient": float(diffusion),
             "enhanced_neusa": str(enhanced_neusa),
+            "warm_start": str(warm_start),
             "relative_l2_error": float(relative_l2_error_value),
             "relative_l1_error": float(relative_l1_error_value),
             "steps": int(steps),
