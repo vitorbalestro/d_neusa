@@ -214,11 +214,9 @@ if __name__ == "__main__":
                         learning_rate_scheduler = True,
                         loss_function = lambda : loss_function(model_list[0],training_grid,sigma,center,c_squared_interp,device)
                     )
-    first_start = time.time()
+    
     trainer.train()
-    first_end = time.time()
-    ref_time = first_end-first_start
-    np.savetxt("ref_time.txt",[ref_time])
+    
 
     for i in range(1,n_slices):
         current_domain_t = [ts[time_slices[i-1]].item(),ts[time_slices[i]].item()]
