@@ -9,7 +9,8 @@ class DirectoryManager:
         seed,
         ablation=False,
         specifier=None,
-        checkpoints=False
+        checkpoints=False,
+        subdomain_losses=False
     ):
         self.equation = equation
         self.ablation = ablation
@@ -18,6 +19,7 @@ class DirectoryManager:
         self.model = model
         self.dir_name = dir_name
         self.checkpoints = checkpoints
+        self.subdomain_losses = subdomain_losses
         
     
     def config(self):
@@ -46,6 +48,12 @@ class DirectoryManager:
                 self.save_dir, "checkpoints"
             )
             os.makedirs(self.checkpoints_dir, exist_ok=True)
+
+        if self.subdomain_losses:
+            self.losses_dir = os.path.join(
+                self.save_dir, "losses"
+            )
+            os.makedirs(self.losses_dir, exist_ok=True)
 
         os.makedirs(self.save_dir_solutions, exist_ok=True)
         os.makedirs(self.save_dir_metrics, exist_ok=True)

@@ -58,22 +58,25 @@ for n in p:
     time_burgers_mean = time_burgers_mean / len(seeds)
     rrmse_burgers.append(rrmse_burgers_mean)
     time_burgers.append(time_burgers_mean)
+
 # --------------------------------------------------------
 # Figure
 # --------------------------------------------------------
 
 fig, axes = plt.subplots(
-    2,
-    2,
-    figsize=(10,8),
+    2, 2,
+    figsize=(10, 8),
     sharex=True
 )
+
+# Use the actual number of subdomains
+x_plot = np.array(p)
 
 # ========================================================
 # Allen-Cahn - Error
 # ========================================================
 
-ax = axes[0,0]
+ax = axes[0, 0]
 
 ax.plot(
     x_plot,
@@ -84,22 +87,18 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
+ax.set_xscale("log")
 ax.set_yscale("log")
 
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
-
-ax.set_ylabel(r"rRMSE (log scale)")
+ax.set_ylabel("rRMSE")
 ax.set_title("(a) 1D Allen-Cahn")
-
 ax.grid(False)
 
 # ========================================================
 # Allen-Cahn - Time
 # ========================================================
 
-ax = axes[0,1]
+ax = axes[0, 1]
 
 ax.plot(
     x_plot,
@@ -110,21 +109,18 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
-
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
+ax.set_xscale("log")
+ax.set_yscale("log")
 
 ax.set_ylabel("Training time (s)")
 ax.set_title("(b) 1D Allen-Cahn")
-
 ax.grid(False)
 
 # ========================================================
 # Burgers - Error
 # ========================================================
 
-ax = axes[1,0]
+ax = axes[1, 0]
 
 ax.plot(
     x_plot,
@@ -135,23 +131,19 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
+ax.set_xscale("log")
 ax.set_yscale("log")
 
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
-
 ax.set_xlabel("Number of temporal subdomains")
-ax.set_ylabel(r"rRMSE (log scale)")
+ax.set_ylabel("rRMSE")
 ax.set_title("(c) Burgers")
-
 ax.grid(False)
 
 # ========================================================
 # Burgers - Time
 # ========================================================
 
-ax = axes[1,1]
+ax = axes[1, 1]
 
 ax.plot(
     x_plot,
@@ -162,18 +154,22 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
-
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
+ax.set_xscale("log")
+ax.set_yscale("log")
 
 ax.set_xlabel("Number of temporal subdomains")
 ax.set_ylabel("Training time (s)")
 ax.set_title("(d) Burgers")
-
 ax.grid(False)
 
 # --------------------------------------------------------
+# Common axis formatting
+# --------------------------------------------------------
+
+for ax in axes.flat:
+    ax.set_xticks(p)
+    ax.set_xticklabels([str(x) for x in p])
+    ax.set_xlim(9, 550)
 
 plt.tight_layout()
 

@@ -105,6 +105,9 @@ class AdamTrainer:
 
             loss = self.loss_function()
 
+            if step == 0:
+                self.initial_loss = loss.detach()
+
             loss.backward()
 
             self.optimizer.step()
@@ -117,7 +120,8 @@ class AdamTrainer:
             if step % 10 == 0 or step == self.adam_steps - 1:
                 print(f"Adam step {step} | Loss: {loss.item():.12f}")
         print(f"Adam Optimization Completed. ")
-        print(f'Adam training loss: {loss.item():.12f}')
+        self.final_loss = loss.detach()
+        print(f'Adam training loss: {self.final_loss.item():.12f}')
     
     def train_neusa_best_checkpoint(self):
         best_loss = float("inf")

@@ -1,0 +1,3 @@
+Model                   Allen--Cahn 1D              Allen--Cahn 2D                     Burgers                Three Layers                    Marmousi                  Utah FORGE
+                   rRMSE            TT         rRMSE            TT         rRMSE            TT         rRMSE            TT         rRMSE            TT         rRMSE            TT
+D_NeuSA         0.001838        100.16           nan       5418.53      0.004306         95.04      0.001840         62.05      0.079302        715.66      0.006096       2493.69

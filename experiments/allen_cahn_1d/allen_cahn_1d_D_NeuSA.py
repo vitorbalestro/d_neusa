@@ -89,7 +89,8 @@ if __name__ == "__main__":
         dir_name=dir_name,
         ablation=ablation,
         specifier=specifier,
-        seed=seed
+        seed=seed,
+        subdomain_losses=True
     )
 
     directory_manager.config()
@@ -180,6 +181,12 @@ if __name__ == "__main__":
     np.save(os.path.join(directory_manager.save_dir_solutions, "u_pred.npy"),u_pred)
     np.save(os.path.join(directory_manager.save_dir_solutions, "u_ref.npy"),u_ref)
 
+    # save losses
+    np.savez(
+        os.path.join(directory_manager.losses_dir, "subdomain_losses.npz"),
+        initial_losses=np.array(trainer.initial_losses),
+        final_losses=np.array(trainer.final_losses),
+    )
 
     # metrics
     metrics = Metrics(u_pred,u_ref)

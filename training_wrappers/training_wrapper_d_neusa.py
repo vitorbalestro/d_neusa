@@ -57,6 +57,7 @@ class TrainingWrapperDNeuSA:
 
         self.warm_start = warm_start
 
+
     def initialize_subnetwork(self):
 
         if self.space_dimension == 1:
@@ -112,6 +113,9 @@ class TrainingWrapperDNeuSA:
         self.num_params = num_trainable_params
 
     def train(self):
+        
+        self.initial_losses = []
+        self.final_losses = []
 
         hus = []
 
@@ -135,7 +139,14 @@ class TrainingWrapperDNeuSA:
             )
         )
 
+        print(f"Starting subdomain 1/{self.n_slices} training...")
         trainer.train_neusa()
+
+        self.initial_losses.append(trainer.initial_loss.item())
+        self.final_losses.append(trainer.final_loss.item())
+
+        
+        print(f"End of subdomain 1/{self.n_slices} training.")
 
         with torch.no_grad():
             start_inf_time = time.time()
@@ -181,7 +192,13 @@ class TrainingWrapperDNeuSA:
                 )
             )
 
+            print(f"Starting subdomain {i+1}/{self.n_slices} training...")
             trainer.train_neusa()
+
+            self.initial_losses.append(trainer.initial_loss.item())
+            self.final_losses.append(trainer.final_loss.item())
+            
+            print(f"End of subdomain {i+1}/{self.n_slices} training.")
 
             with torch.no_grad():
                 start_inf_time = time.time()

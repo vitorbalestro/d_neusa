@@ -110,7 +110,7 @@ for ax, equation, title, n_t, n_slices in zip(
     ax.tick_params(axis="both", labelsize=11)
 
     if ax in [axes[0], axes[3]]:
-        ax.set_ylabel("Relative RMSE", fontsize=13)
+        ax.set_ylabel("Local rRMSE", fontsize=13)
 
 axes[0].legend(fontsize=12)
 

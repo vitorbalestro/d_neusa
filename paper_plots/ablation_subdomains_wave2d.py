@@ -11,12 +11,12 @@ plt.rcParams.update({
 # --------------------------------------------------------
 
 p = [10, 20, 40, 50, 100]
-x_plot = np.arange(len(p))
+x_plot = np.array(p)
 
-seeds = [11,12,13,14,15]
+seeds = [11, 12, 13, 14, 15]
 
 # --------------------------------------------------------
-# Fill with your values
+# Load metrics
 # --------------------------------------------------------
 
 rrmse_three = []
@@ -35,15 +35,15 @@ for n in p:
         ) as f:
             metrics = json.load(f)
 
-        rrmse_three_mean = rrmse_three_mean + metrics["relative_l2_error"]
-        time_three_mean = time_three_mean + metrics["training_time"]
+        rrmse_three_mean += metrics["relative_l2_error"]
+        time_three_mean += metrics["training_time"]
 
-    rrmse_three_mean = rrmse_three_mean / len(seeds)
-    time_three_mean = time_three_mean / len(seeds)
+    rrmse_three_mean /= len(seeds)
+    time_three_mean /= len(seeds)
 
     rrmse_three.append(rrmse_three_mean)
     time_three.append(time_three_mean)
-    
+
     rrmse_marmousi_mean = 0.0
     time_marmousi_mean = 0.0
     for seed in seeds:
@@ -52,14 +52,16 @@ for n in p:
             "r"
         ) as f:
             metrics = json.load(f)
-        rrmse_marmousi_mean = rrmse_marmousi_mean + metrics["relative_l2_error"]
-        time_marmousi_mean = time_marmousi_mean + metrics["training_time"]
-    
-    rrmse_marmousi_mean = rrmse_marmousi_mean / len(seeds)
-    time_marmousi_mean = time_marmousi_mean / len(seeds)
+
+        rrmse_marmousi_mean += metrics["relative_l2_error"]
+        time_marmousi_mean += metrics["training_time"]
+
+    rrmse_marmousi_mean /= len(seeds)
+    time_marmousi_mean /= len(seeds)
 
     rrmse_marmousi.append(rrmse_marmousi_mean)
     time_marmousi.append(time_marmousi_mean)
+
 # --------------------------------------------------------
 # Figure
 # --------------------------------------------------------
@@ -67,7 +69,7 @@ for n in p:
 fig, axes = plt.subplots(
     2,
     2,
-    figsize=(10,8),
+    figsize=(10, 8),
     sharex=True
 )
 
@@ -75,7 +77,7 @@ fig, axes = plt.subplots(
 # Three Layers - Error
 # ========================================================
 
-ax = axes[0,0]
+ax = axes[0, 0]
 
 ax.plot(
     x_plot,
@@ -86,22 +88,19 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
+ax.set_xscale("log")
 ax.set_yscale("log")
 
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
-
-ax.set_ylabel(r"rRMSE (log scale)")
+ax.set_ylabel("rRMSE")
 ax.set_title("(a) Three layers")
 
 ax.grid(False)
 
 # ========================================================
-# Three layers - Time
+# Three Layers - Time
 # ========================================================
 
-ax = axes[0,1]
+ax = axes[0, 1]
 
 ax.plot(
     x_plot,
@@ -112,10 +111,8 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
-
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
+ax.set_xscale("log")
+ax.set_yscale("log")
 
 ax.set_ylabel("Training time (s)")
 ax.set_title("(b) Three layers")
@@ -126,7 +123,7 @@ ax.grid(False)
 # Marmousi - Error
 # ========================================================
 
-ax = axes[1,0]
+ax = axes[1, 0]
 
 ax.plot(
     x_plot,
@@ -137,14 +134,11 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
+ax.set_xscale("log")
 ax.set_yscale("log")
 
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
-
 ax.set_xlabel("Number of temporal subdomains")
-ax.set_ylabel(r"rRMSE (log scale)")
+ax.set_ylabel("rRMSE")
 ax.set_title("(c) Marmousi")
 
 ax.grid(False)
@@ -153,7 +147,7 @@ ax.grid(False)
 # Marmousi - Time
 # ========================================================
 
-ax = axes[1,1]
+ax = axes[1, 1]
 
 ax.plot(
     x_plot,
@@ -164,10 +158,8 @@ ax.plot(
     markersize=7,
 )
 
-#ax.set_xscale("log")
-
-ax.set_xticks(x_plot)
-ax.set_xticklabels([str(x) for x in p])
+ax.set_xscale("log")
+ax.set_yscale("log")
 
 ax.set_xlabel("Number of temporal subdomains")
 ax.set_ylabel("Training time (s)")
@@ -176,6 +168,13 @@ ax.set_title("(d) Marmousi")
 ax.grid(False)
 
 # --------------------------------------------------------
+# Common axis formatting
+# --------------------------------------------------------
+
+for ax in axes.flat:
+    ax.set_xticks(p)
+    ax.set_xticklabels([str(x) for x in p])
+    ax.set_xlim(9, 110)
 
 plt.tight_layout()
 
@@ -185,3 +184,4 @@ plt.savefig(
     bbox_inches="tight"
 )
 
+plt.show()
