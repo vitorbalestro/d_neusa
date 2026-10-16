@@ -110,7 +110,6 @@ if __name__ == "__main__":
     # initial condition
     u0 = xs**2 * torch.cos(torch.pi*xs)
     hu0 = basis.dbt(u0)
-    print(u0.shape)
 
     # initial vector field
     D2 = basis.D2
